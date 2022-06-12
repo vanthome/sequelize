@@ -544,8 +544,8 @@ describe(Support.getTestDialectTeaser('Model'), () => {
 
             await User.sync({ force: true, schema: SCHEMA_ONE });
             await Task.sync({ force: true, schema: SCHEMA_ONE });
-            const user0 = await User.schema(SCHEMA_ONE).create({});
-            const task = await Task.schema(SCHEMA_ONE).create({});
+            const user0 = await User.withSchema(SCHEMA_ONE).create({});
+            const task = await Task.withSchema(SCHEMA_ONE).create({});
             await task.setUserXYZ(user0);
             let user = await task.getUserXYZ({ schema: SCHEMA_ONE });
             expect(user).to.be.ok;
