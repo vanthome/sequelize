@@ -614,6 +614,18 @@ export class AbstractQueryGenerator {
     }
 
     const escapedTableName = typeof tableName === 'string' ? this.quoteIdentifiers(tableName) : this.quoteTable(tableName);
+    if (options.schema && !_.isObject(tableName)) {
+      tableName = {
+        tableName,
+        schema: options.schema,
+      };
+    }
+
+    if (typeof tableName === 'string') {
+      tableName = this.quoteIdentifiers(tableName);
+    } else {
+      tableName = this.quoteTable(tableName);
+    }
 
     const concurrently = this._dialect.supports.index.concurrently && options.concurrently ? 'CONCURRENTLY' : undefined;
     let ind;
@@ -1897,7 +1909,14 @@ export class AbstractQueryGenerator {
 
   generateThroughJoin(include, includeAs, parentTableName, topLevelInfo) {
     const through = include.through;
-    const throughTable = through.model.getTableName();
+    let throughTable = through.model.getTableName();
+    if (include.model._schema && include.through.model._schema === null) {
+      throughTable = {
+        schema: include.model._schema,
+        tableName: through.model.getTableName(),
+      };
+    }
+
     const throughAs = `${includeAs.internalAs}->${through.as}`;
     const externalThroughAs = `${includeAs.externalAs}.${through.as}`;
     const throughAttributes = through.attributes.map(attr => {
