@@ -480,6 +480,79 @@ describe(Support.getTestDialectTeaser('Model'), () => {
             expect(restaurant.bar).to.contain('two');
           }
         });
+
+        describe('regressions', () => {
+          it('should be able to sync model with schema set at sync time', async function () {
+            this.sequelize.models = [];
+            this.sequelize.define(
+              'User3',
+              {
+                name: DataTypes.STRING,
+                value: DataTypes.INTEGER,
+              },
+              {
+                indexes: [
+                  {
+                    name: 'test_user3_idx',
+                    fields: ['name'],
+                  },
+                ],
+              },
+            );
+
+            this.sequelize.define(
+              'Task3',
+              {
+                name: DataTypes.STRING,
+                value: DataTypes.INTEGER,
+              },
+              {
+                indexes: [
+                  {
+                    name: 'test_task3_idx',
+                    fields: ['name'],
+                  },
+                ],
+              },
+            );
+
+            return Promise.all([
+              this.sequelize.sync({ schema: SCHEMA_ONE, force: true }),
+              this.sequelize.sync({ schema: SCHEMA_TWO, force: true }),
+            ]).then(([res1, res2]) => {
+              expect(res1).to.be.ok;
+              expect(res2).to.be.ok;
+            });
+          });
+        });
+
+        // TODO: this should work with MSSQL / MariaDB too
+        // Need to fix addSchema return type
+        if (dialect.startsWith('postgres')) {
+          it('defaults to schema provided to sync() for references #11276', async function () {
+            const User = this.sequelize.define('UserXYZ', {
+              uid: {
+                type: DataTypes.INTEGER,
+                primaryKey: true,
+                autoIncrement: true,
+                allowNull: false,
+              },
+            });
+            const Task = this.sequelize.define('TaskXYZ', {});
+
+            Task.belongsTo(User);
+
+            await User.sync({ force: true, schema: SCHEMA_ONE });
+            await Task.sync({ force: true, schema: SCHEMA_ONE });
+            const user0 = await User.schema(SCHEMA_ONE).create({});
+            const task = await Task.schema(SCHEMA_ONE).create({});
+            await task.setUserXYZ(user0);
+            let user = await task.getUserXYZ({ schema: SCHEMA_ONE });
+            expect(user).to.be.ok;
+            user = await task.getUserXYZ(); // Default to schema of task entity
+            expect(user).to.be.ok;
+          });
+        }
       });
     });
   }
