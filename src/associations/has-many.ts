@@ -544,6 +544,7 @@ export interface HasManyOptions<SourceKey extends string, TargetKey extends stri
   sourceKey?: SourceKey;
 
   inverse?: {
+    type?: 'hasMany' | 'hasOne',
     as?: AssociationOptions<any>['as'],
     scope?: AssociationOptions<any>['scope'],
   };
