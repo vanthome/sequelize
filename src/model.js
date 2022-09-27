@@ -1384,7 +1384,7 @@ Specify a different name for either index to resolve this issue.`);
 
     const existingIndexes = await this.queryInterface.showIndex(tableName, options);
     const missingIndexes = this.getIndexes()
-      .filter(item1 => !existingIndexes.some(item2 => item1.name === item2.name))
+      .filter(item1 => !existingIndexes.some(item2 => item1.name.slice(0, 63) === item2.name.slice(0, 63)))
       .sort((index1, index2) => {
         if (this.sequelize.options.dialect === 'postgres') {
           // move concurrent indexes to the bottom to avoid weird deadlocks
@@ -1401,7 +1401,7 @@ Specify a different name for either index to resolve this issue.`);
       });
 
     for (const index of missingIndexes) {
-      await this.queryInterface.addIndex(tableName, index, options);
+      await this.queryInterface.addIndex(tableName, { ...options, ...index });
     }
 
     if (options.hooks) {
