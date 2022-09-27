@@ -613,7 +613,7 @@ export class AbstractQueryGenerator {
       options.where = this.whereQuery(options.where);
     }
 
-    const escapedTableName = typeof tableName === 'string' ? this.quoteIdentifiers(tableName) : this.quoteTable(tableName);
+    // const escapedTableName = typeof tableName === 'string' ? this.quoteIdentifiers(tableName) : this.quoteTable(tableName);
     if (options.schema && !_.isObject(tableName)) {
       tableName = {
         tableName,
@@ -632,7 +632,7 @@ export class AbstractQueryGenerator {
     if (this._dialect.supports.indexViaAlter) {
       ind = [
         'ALTER TABLE',
-        escapedTableName,
+        tableName,
         concurrently,
         'ADD',
       ];
@@ -657,7 +657,7 @@ export class AbstractQueryGenerator {
       !this._dialect.supports.indexViaAlter ? concurrently : undefined,
       escapedIndexName,
       this._dialect.supports.index.using === 1 && options.using ? `USING ${options.using}` : '',
-      !this._dialect.supports.indexViaAlter ? `ON ${escapedTableName}` : undefined,
+      !this._dialect.supports.indexViaAlter ? `ON ${tableName}` : undefined,
       this._dialect.supports.index.using === 2 && options.using ? `USING ${options.using}` : '',
       `(${fieldsSql.join(', ')})`,
       this._dialect.supports.index.parser && options.parser ? `WITH PARSER ${options.parser}` : undefined,
@@ -675,7 +675,7 @@ export class AbstractQueryGenerator {
     }
 
     return Utils.joinSQLFragments([
-      'ALTER TABLE',
+      'ALTER TABLE IF EXISTS',
       tableName,
       'ADD',
       this.getConstraintSnippet(tableName, options || {}),
@@ -1910,7 +1910,7 @@ export class AbstractQueryGenerator {
   generateThroughJoin(include, includeAs, parentTableName, topLevelInfo) {
     const through = include.through;
     let throughTable = through.model.getTableName();
-    if (include.model._schema && include.through.model._schema === null) {
+    if (include.model._schema && (include.through.model._schema === null || _.isEmpty(include.through.model._schema))) {
       throughTable = {
         schema: include.model._schema,
         tableName: through.model.getTableName(),
