@@ -1080,6 +1080,11 @@ export class QueryInterface {
 
   async select(model, tableName, optionsArg) {
     const options = { ...optionsArg, type: QueryTypes.SELECT, model };
+    // disable subQuery if its set ( hasMany association's currently generate's invalid SQL query )
+    // SequelizeDatabaseError while performing DB operation  missing FROM-clause entry for table
+    if (options.subQuery) {
+      options.subQuery = false;
+    }
 
     const sql = this.queryGenerator.selectQuery(tableName, options, model);
 
