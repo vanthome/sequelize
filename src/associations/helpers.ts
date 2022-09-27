@@ -1,6 +1,6 @@
 import assert from 'assert';
 import NodeUtils from 'util';
-import isEqual from 'lodash/isEqual';
+// import isEqual from 'lodash/isEqual';
 import isPlainObject from 'lodash/isPlainObject.js';
 import lowerFirst from 'lodash/lowerFirst';
 import omit from 'lodash/omit';
@@ -171,7 +171,7 @@ function getAssociationsIncompatibilityStatus(
   existingAssociation: Association,
   newAssociationType: Class<Association>,
   newTarget: ModelStatic<Model>,
-  newOptions: NormalizeBaseAssociationOptions<any>,
+  // newOptions: NormalizeBaseAssociationOptions<any>,
 ): IncompatibilityStatus | null {
   if (existingAssociation.associationType !== newAssociationType.name) {
     return IncompatibilityStatus.DIFFERENT_TYPES;
@@ -181,11 +181,11 @@ function getAssociationsIncompatibilityStatus(
     return IncompatibilityStatus.DIFFERENT_TARGETS;
   }
 
-  const opts1 = omit(existingAssociation.options as any, 'inverse');
-  const opts2 = omit(newOptions, 'inverse');
-  if (!isEqual(opts1, opts2)) {
-    return IncompatibilityStatus.DIFFERENT_OPTIONS;
-  }
+  // const opts1 = omit(existingAssociation.options as any, 'inverse');
+  // const opts2 = omit(newOptions, 'inverse');
+  // if (!isEqual(opts1, opts2)) {
+  //   return IncompatibilityStatus.DIFFERENT_OPTIONS;
+  // }
 
   return null;
 }
