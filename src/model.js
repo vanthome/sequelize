@@ -1017,7 +1017,7 @@ Specify a different name for either index to resolve this issue.`);
     // setup name for version attribute
     if (this.options.version) {
       this._versionAttribute = typeof this.options.version === 'string' ? this.options.version : 'version';
-      this._readOnlyAttributes.add(this._versionAttribute);
+      // this._readOnlyAttributes.add(this._versionAttribute);
     }
 
     this._hasReadOnlyAttributes = this._readOnlyAttributes.size > 0;
