@@ -510,7 +510,7 @@ ${associationOwner._getAssociationDebugList()}`);
 
         // 'fromSourceToThroughOne' is a bit hacky and should not be included when { all: true } is specified
         //  because its parent 'belongsToMany' will be replaced by it in query generator.
-        if (association.parentAssociation instanceof BelongsToMany
+        if (association.parentAssociation.constructor.name === BelongsToMany.name
           && association === association.parentAssociation.fromSourceToThroughOne) {
           return;
         }
@@ -597,7 +597,7 @@ ${associationOwner._getAssociationDebugList()}`);
     include.as ||= association.as;
 
     // If through, we create a pseudo child include, to ease our parsing later on
-    if (association instanceof BelongsToMany) {
+    if (association.constructor.name === BelongsToMany.name) {
       if (!include.include) {
         include.include = [];
       }
@@ -655,7 +655,7 @@ ${associationOwner._getAssociationDebugList()}`);
     }
 
     if (include.separate === true) {
-      if (!(include.association instanceof HasMany)) {
+      if (!(include.association.constructor.name === HasMany.name)) {
         throw new TypeError('Only HasMany associations support include.separate');
       }
 
@@ -2684,7 +2684,7 @@ Specify a different name for either index to resolve this issue.`);
         }));
       } else {
         if (options.include && options.include.length > 0) {
-          await Promise.all(options.include.filter(include => include.association instanceof BelongsTo).map(async include => {
+          await Promise.all(options.include.filter(include => include.association.constructor.name === BelongsTo.name).map(async include => {
             const associationInstances = [];
             const associationInstanceIndexToInstanceMap = [];
 
@@ -2802,8 +2802,8 @@ Specify a different name for either index to resolve this issue.`);
       }
 
       if (options.include && options.include.length > 0) {
-        await Promise.all(options.include.filter(include => !(include.association instanceof BelongsTo
-          || include.parent && include.parent.association instanceof BelongsToMany)).map(async include => {
+        await Promise.all(options.include.filter(include => !(include.association.constructor.name === BelongsTo.name
+          || include.parent && include.parent.association.constructor.name === BelongsToMany.name)).map(async include => {
           const associationInstances = [];
           const associationInstanceIndexToInstanceMap = [];
 
@@ -2815,7 +2815,7 @@ Specify a different name for either index to resolve this issue.`);
 
             for (const associationInstance of associated) {
               if (associationInstance) {
-                if (!(include.association instanceof BelongsToMany)) {
+                if (!(include.association.constructor.name === BelongsToMany.name)) {
                   associationInstance.set(include.association.foreignKey, instance.get(include.association.sourceKey || instance.constructor.primaryKeyAttribute, { raw: true }), { raw: true });
                   Object.assign(associationInstance, include.association.scope);
                 }
@@ -2839,7 +2839,7 @@ Specify a different name for either index to resolve this issue.`);
             .value();
 
           const createdAssociationInstances = await recursiveBulkCreate(associationInstances, includeOptions);
-          if (include.association instanceof BelongsToMany) {
+          if (include.association.constructor.name === BelongsToMany.name) {
             const valueSets = [];
 
             for (const idx in createdAssociationInstances) {
@@ -4072,7 +4072,7 @@ Instead of specifying a Model, either:
     }
 
     if (options.fields.length > 0 && this.isNewRecord && this._options.include && this._options.include.length > 0) {
-      await Promise.all(this._options.include.filter(include => include.association instanceof BelongsTo).map(async include => {
+      await Promise.all(this._options.include.filter(include => include.association.constructor.name === BelongsTo.name).map(async include => {
         const instance = this.get(include.as);
         if (!instance) {
           return;
@@ -4151,8 +4151,8 @@ Instead of specifying a Model, either:
     Object.assign(result.dataValues, values);
     if (wasNewRecord && this._options.include && this._options.include.length > 0) {
       await Promise.all(
-        this._options.include.filter(include => !(include.association instanceof BelongsTo
-          || include.parent && include.parent.association instanceof BelongsToMany)).map(async include => {
+        this._options.include.filter(include => !(include.association.constructor.name === BelongsTo.name
+          || include.parent && include.parent.association.constructor.name === BelongsToMany.name)).map(async include => {
           let instances = this.get(include.as);
 
           if (!instances) {
@@ -4174,7 +4174,7 @@ Instead of specifying a Model, either:
 
           // Instances will be updated in place so we can safely treat HasOne like a HasMany
           await Promise.all(instances.map(async instance => {
-            if (include.association instanceof BelongsToMany) {
+            if (include.association.constructor.name === BelongsToMany.name) {
               await instance.save(includeOptions);
               const values0 = {
                 [include.association.foreignKey]: this.get(this.constructor.primaryKeyAttribute, { raw: true }),
