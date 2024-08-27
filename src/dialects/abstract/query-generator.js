@@ -936,7 +936,7 @@ export class AbstractQueryGenerator {
           // BelongsToMany.throughModel are a special case. We want
           //  through model to be loaded under the model's name instead of the association name,
           //  because we want them to be available under the model's name in the entity's data.
-          if (previousAssociation.constructor.name == BelongsToMany.name && item === previousAssociation.fromSourceToThroughOne) {
+          if (previousAssociation?.constructor?.name == BelongsToMany.name && item === previousAssociation.fromSourceToThroughOne) {
             tableNames[i] = previousAssociation.throughModel.name;
           } else {
             tableNames[i] = item.as;
@@ -1299,11 +1299,11 @@ export class AbstractQueryGenerator {
 
         if (typeof options.groupedLimit.on === 'string') {
           whereKey = options.groupedLimit.on;
-        } else if (options.groupedLimit.on.constructor.name == HasMany.name) {
+        } else if (options?.groupedLimit?.on?.constructor?.name == HasMany.name) {
           whereKey = options.groupedLimit.on.identifierField;
         }
 
-        if (options.groupedLimit.on.constructor.name == BelongsToMany.name) {
+        if (options?.groupedLimit?.on?.constructor?.name == BelongsToMany.name) {
           // BTM includes needs to join the through table on to check ID
           groupedTableName = options.groupedLimit.on.throughModel.name;
 
@@ -1765,17 +1765,17 @@ export class AbstractQueryGenerator {
     let joinWhere;
     /* Attributes for the left side */
     const left = association.source;
-    const attrLeft = association.constructor.name == BelongsTo.name
+    const attrLeft = association?.constructor?.name == BelongsTo.name
       ? association.identifier
       : association.sourceKeyAttribute || left.primaryKeyAttribute;
-    const fieldLeft = association.constructor.name == BelongsTo.name
+    const fieldLeft = association?.constructor?.name == BelongsTo.name
       ? association.identifierField
       : left.rawAttributes[association.sourceKeyAttribute || left.primaryKeyAttribute].field;
     let asLeft;
     /* Attributes for the right side */
     const right = include.model;
     const tableRight = right.getTableName();
-    const fieldRight = association.constructor.name == BelongsTo.name
+    const fieldRight = association?.constructor?.name == BelongsTo.name
       ? right.rawAttributes[association.targetIdentifier || right.primaryKeyAttribute].field
       : association.identifierField;
     let asRight = include.as;
